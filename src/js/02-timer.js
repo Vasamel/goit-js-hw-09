@@ -1,88 +1,47 @@
-import flatpickr from 'flatpickr';
-import { Report } from 'notiflix/build/notiflix-report-aio';
-// import 'flatpickr/dist/flatpickr.css';
-// import '../css/02-timer.css';
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
-const inputEl = document.querySelector('#datetime-picker');
-const startBtn = document.querySelector('button[data-start]');
-const stopBtn = document.querySelector('button[data-stop]');
-const daysEl = document.querySelector('span[data-days]');
-const hoursEl = document.querySelector('span[data-hours]');
-const minutesEl = document.querySelector('span[data-minutes]');
-const secondsEl = document.querySelector('span[data-seconds]');
+const btnStart = document.querySelector('[data-start]');
+const inputCalendar = document.querySelector('#datetime-picker');
+const daysEl = document.querySelector('[data-days]');
+const hoursEl = document.querySelector('[data-hours]');
+const minutesEl = document.querySelector('[data-minutes]');
+const secondsEl = document.querySelector('[data-seconds]');
 
-const options = {
-  enableTime: true,
-  time_24hr: true,
-  defaultDate: new Date(),
-  minuteIncrement: 1,
-  onClose(selectedDates) {
-    console.log(selectedDates[0]);
-    const selectedCalendarDates = calendar.selectedDates[0];
-    const pastOrFuture = selectedCalendarDates - new Date();
-
-    if (pastOrFuture <= 0) {
-      startBtn.disabled = true;
-      Report.failure(
-        'Wrong date',
-        'Please choose a date in the future',
-        'Okay'
-      );
-    } else {
-      startBtn.disabled = false;
-    }
-  },
-};
-
-const calendar = flatpickr(inputEl, options);
-let intervalId = null;
+let selectedDate = null;
 let timerId = null;
 
-stopBtn.disabled = true;
+btnStart.setAttribute('disabled', 'true');
 
-startBtn.addEventListener('click', () => {
-  inputEl.disabled = true;
-  startBtn.disabled = true;
-  stopBtn.disabled = false;
-
-  intervalId = setInterval(() => {
-    const selectedCalendarDates = calendar.selectedDates[0];
-    let pastOrFuture = selectedCalendarDates - new Date();
-
-    const getDatesFromMs = convertMs(pastOrFuture);
-
-    if (pastOrFuture < 0) {
-      clearInterval(intervalId);
-      return;
+const options = {
+  cssAnimationStyle: 'zoom',
+  position: 'center-center',
+  closeButton: true,
+   timeout: 4000,
+  fontSize: '25px',
+  width: '500px',
+    enableTime: true,
+    time_24hr: true,
+    defaultDate: new Date(),
+    minuteIncrement: 1,
+    onClose(selectedDates) {
+        const date = new Date();
+    if (selectedDates[0] <= date) {
+      Notify.failure('Please choose a date in the future', options);
+    } else {
+      btnStart.removeAttribute('disabled');
+      selectedDate = selectedDates;
     }
-    daysEl.textContent = getDatesFromMs.days.toString().padStart(2, '0');
-    hoursEl.textContent = getDatesFromMs.hours.toString().padStart(2, '0');
-    minutesEl.textContent = getDatesFromMs.minutes.toString().padStart(2, '0');
-    secondsEl.textContent = getDatesFromMs.seconds.toString().padStart(2, '0');
-  }, 1000);
-});
+    },
+};
 
-startBtn.addEventListener('click', () => {
-  timerId = setInterval(() => {
-    const selectedCalendarDates = calendar.selectedDates[0];
-    const pastOrFuture = selectedCalendarDates - new Date();
-    if (pastOrFuture < 0) {
-      inputEl.disabled = false;
-      startBtn.disabled = false;
-      stopBtn.disabled = true;
-      Report.success('Time is over', 'Choose a new timer date', 'Okay');
-      clearInterval(timerId);
-    }
-  }, 1000);
-});
+const fp = flatpickr(inputCalendar, options);
 
-stopBtn.addEventListener('click', () => {
-  clearInterval(intervalId);
-  clearInterval(timerId);
-  inputEl.disabled = false;
-  startBtn.disabled = false;
-  stopBtn.disabled = true;
-});
+btnStart.addEventListener('click', onStart)
+function onStart () {
+    console.log(selectedDate);
+};
 
 function convertMs(ms) {
   // Number of milliseconds per unit of time
@@ -90,15 +49,44 @@ function convertMs(ms) {
   const minute = second * 60;
   const hour = minute * 60;
   const day = hour * 24;
-
-  // Remaining days
-  const days = Math.floor(ms / day);
+// Remaining days
+  const days = addLeadingZero(Math.floor(ms / day));
   // Remaining hours
-  const hours = Math.floor((ms % day) / hour);
+  const hours = addLeadingZero(Math.floor((ms % day) / hour));
   // Remaining minutes
-  const minutes = Math.floor(((ms % day) % hour) / minute);
+  const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
   // Remaining seconds
-  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+  const seconds = addLeadingZero(
+    Math.floor((((ms % day) % hour) % minute) / second)
+  );
 
-  return { days, hours, minutes, seconds };
+    return { days, hours, minutes, seconds };
+}
+
+function addLeadingZero(value) {
+    return String(value).padStart(2, '0');
+};
+
+
+function onStart() {
+  timerId = setInterval(updateInterface, 1000);
+  btnStart.setAttribute('disabled', 'true');
+  inputCalendar.setAttribute('disabled', 'true');
+    
+};
+function updateInterface() {
+  const date = new Date();
+  const dataTimer = selectedDate[0] - date;
+  if (dataTimer < 1000) {
+    endTime();
+  }
+  const { days, hours, minutes, seconds } = convertMs(dataTimer);
+  daysEl.textContent = days;
+  hoursEl.textContent = `:${hours}`;
+  minutesEl.textContent = `:${minutes}`;
+  secondsEl.textContent = `:${seconds}`;
+};
+function endTime() {
+  clearInterval(timerId);
+  Notify.success('Time is over!');
 }

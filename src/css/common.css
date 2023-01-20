@@ -16,3 +16,130 @@ img {
   display: block;
   max-width: 100%;
 }
+.timer {
+  margin-top: 50px;
+  display: flex;
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 150px;
+}
+
+.value {
+  font-style: italic;
+  font-size: 30px;
+  font-weight: 700;
+}
+.label {
+  font-weight: 700;
+}
+
+:root {
+  --txt-color: #fff;
+  --txt-box-bg: #424242;
+  --main-bg: #000;
+  /* front page title text */
+  --main-front-color: #00a8ff;
+  --second-front-color: #e84118;
+  --third-front-color: #fbc531;
+}
+
+* {
+  margin: 0px;
+  padding: 0px;
+}
+
+/* Text */
+
+.head-text {
+  font-family: 'IBM Plex Sans', sans-serif;
+  color: var(--txt-color);
+}
+
+.main-text {
+  font-family: 'IBM Plex Mono' monospace;
+  color: var(--txt-color);
+}
+
+/* Allgin */
+
+.center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* classes */
+
+.front-page {
+  background-color: var(--main-bg);
+  color: #000;
+  animation: text-rainbow 13s linear infinite;
+}
+
+.full-page {
+  background-size: cover;
+  height: 100vh;
+}
+
+/* IDs */
+
+#title-text {
+  margin-top: 20px;
+  position: absolute;
+  color: var(--main-bg);
+  font-weight: bold;
+  text-align: center;
+  font-size: 60px;
+  -webkit-text-stroke: 2px var(--main-front-color);
+  animation: stroke-rainbow 13s linear infinite;
+}
+
+#title-text:hover {
+  color: inherit;
+}
+
+@keyframes stroke-rainbow {
+  0% {
+    border-color: var(--main-front-color);
+    -webkit-text-stroke-color: var(--main-front-color);
+  }
+  25% {
+    border-color: var(--second-front-color);
+    -webkit-text-stroke-color: var(--second-front-color);
+  }
+  50% {
+    border-color: var(--third-front-color);
+    -webkit-text-stroke-color: var(--third-front-color);
+  }
+  75% {
+    border-color: var(--second-front-color);
+    -webkit-text-stroke-color: var(--second-front-color);
+  }
+  100% {
+    border-color: var(--main-front-color);
+    -webkit-text-stroke-color: var(--main-front-color);
+  }
+}
+
+@keyframes text-rainbow {
+  0% {
+    color: var(--main-front-color);
+  }
+  25% {
+    color: var(--second-front-color);
+  }
+  50% {
+    color: var(--third-front-color);
+  }
+  75% {
+    color: var(--second-front-color);
+  }
+  100% {
+    color: var(--main-front-color);
+  }
+}
